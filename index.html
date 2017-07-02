@@ -1,0 +1,644 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Video.js 5.18.4</title>
+    <link href="css/video-js.css" rel="stylesheet">
+    <!-- If you'd like to support IE8 -->
+    <script src="lib/videojs-ie8.min.js"></script>
+    <link rel="stylesheet" href="./dist/common.css"/>
+    <link rel="stylesheet" href="./dist/player_page.css"/>
+    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="./css/animate.min.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.lib for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.lib doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://cdn.bootcss.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://cdn.bootcss.com/respond.lib/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script src="./lib/video.min.js"></script>
+    <script src="./lib/vue.min.js"></script>
+    <script src="./lib/vue-resource.min.js"></script>
+    <!--<script src="./lib/vue.js"></script>-->
+    <script src="./lib/vue-router.js"></script>
+    <style type="text/css">
+        .videoPlayer {
+            border: 1px solid #000;
+            width: 600px;
+        }
+
+        #video {
+            margin-top: 0px;
+        }
+
+        #videoControls {
+            width: 600px;
+            margin-top: 0px;
+        }
+
+        .show {
+            opacity: 1;
+        }
+
+        .hide {
+            opacity: 0;
+        }
+
+        #progressWrap {
+            background-color: black;
+            height: 25px;
+            cursor: pointer;
+        }
+
+        #playProgress {
+            background-color: red;
+            width: 0px;
+            height: 25px;
+            border-right: 2px solid blue;
+        }
+
+        #showProgress {
+            background-color:;
+            font-weight: 600;
+            font-size: 20px;
+            line-height: 25px;
+        }
+    </style>
+</head>
+<body>
+<!--头部标签-->
+<div id="container">
+    <header>
+        <nav class="navbar navbar-inverse">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                            data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand temp-list" href="#" v-on:click="changeTemp(temp_main)">
+                        <img alt="Brand" class="img-responsive" src="./img/logo20170425123254.png">
+                    </a>
+                </div>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li class="text-center">
+                            <a href="#" class="temp-list" v-on:click="changeTemp(temp_vedio)">
+                                视频库
+                            </a>
+                        </li>
+                        <li class=" text-center">
+                            <a href="#" class="temp-list" v-on:click="changeTemp(temp_app)">
+                                资源库
+                            </a>
+                        </li>
+                        <li class="text-center">
+                            <a href="#" class="temp-list" v-on:click="changeTemp(temp_connect)">
+                                联系我
+                            </a>
+                        </li>
+
+                    </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <!--<li class="text-center"><a href="#">登录&nbsp;&nbsp;<span class="glyphicon glyphicon-user"></span></a>-->
+                        <!--</li>-->
+                        <li class="text-center">
+                            <a href="javascript:;" class="temp-list" v-on:click="changeTemp(temp_upload)">上传&nbsp;&nbsp;<span
+                                    class="glyphicon glyphicon-open"></span></a>
+                        </li>
+                        <li class="dropdown text-center share">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                               aria-haspopup="true"
+                               aria-expanded="false" v-click="getLogin()">登录&nbsp;&nbsp;<span
+                                    class="glyphicon glyphicon-user"></span></a>
+                            <ul class="dropdown-menu">
+                                {{yunTie}}
+                            </ul>
+                        </li>
+                    </ul>
+                    <form class="search-movie navbar-form navbar-right text-right">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="搜索">
+                            <button type="submit" class="btn btn-default btn-info" data-toggle="modal"
+                                    data-target="#myModal">提交
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <!-- /.navbar-collapse -->
+            </div>
+            <!-- /.container-fluid -->
+        </nav>
+    </header>
+
+</div>
+<div id="temp-main" class="temp_main  template" v-bind:style="showObj.styleObj" v-show="showObj.tempShow">
+    <div>
+        <div class="phone-search">
+            <div class="row">
+                <div class="col-lg-9"></div>
+                <div class="col-lg-3">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="搜索">
+      <span class="input-group-btn">
+        <button class="btn btn-info" type="button">搜索</button>
+      </span>
+                    </div>
+                    <!-- /input-group -->
+                </div>
+                <!-- /.col-lg-6 -->
+            </div>
+            <!-- /.row -->
+        </div>
+    </div>
+    <div class="container-fluid">
+        <!--轮播图-->
+        <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+            <!-- Indicators -->
+            <ol class="carousel-indicators">
+                <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+                <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+                <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+            </ol>
+
+            <!-- Wrapper for slides -->
+            <div class="carousel-inner" role="listbox">
+                <div class="item active">
+                    <a href="#" class="text-center ">
+                        <img class="img-responsive" src="./img/89962-106.jpg" alt="...">
+                    </a>
+
+                    <div class="carousel-caption">
+                        我有个朋友，在几年前停止了抱怨和自怨自艾，开始努力改变自己。到今天，他的物质生活和精神状态都没有什么改善。
+                    </div>
+                </div>
+                <div class="item">
+                    <a href="#" class="text-center">
+                        <img class="img-responsive" src="./img/89956-106.jpg" alt="...">
+                    </a>
+
+                    <div class="carousel-caption">
+                        人永远是要学习的。死的时候，才是毕业的时候。
+                    </div>
+                </div>
+                <div class="item">
+                    <a href="#" class="text-center">
+                        <img class="img-responsive" src="./img/89959-106.jpg" alt="...">
+                    </a>
+
+                    <div class="carousel-caption">
+                        秋天是收获的季节。别人的收获是成功与快乐，你的收获是认识到并不是每个人都会成功与快乐。
+                    </div>
+                </div>
+            </div>
+            <!-- Controls -->
+            <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+                <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    </div>
+</div>
+<div id="temp-vedio" class="temp-vedio template" v-bind:style="showObj.styleObj" v-show="showObj.tempShow">
+    <div>
+        <div class="container-fluid">
+            <div class="text-right">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        <li>
+                            <a href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-4 " v-for="videoList in gridData">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">{{videoList.video_name}}</div>
+                        <div class="panel-body text-center"><img class="img-thumbnail"
+                                                                 v-bind:src="location+videoList.video_name+img" alt=""/>
+                        </div>
+                        <div class="panel-footer text-right">
+                            <p class="text-left">
+                                <button class="btn btn-info">{{videoList.video_sort}}</button>
+                            </p>
+                            <p class="well text-left">{{videoList.video_intro}}</p>
+                            <a href="#" class="btn btn-sm btn-info" v-on:click="downLoadVedio(videoList.video_name)">下载
+                            </a>
+                            <a href="#" class="btn btn-sm btn-danger" v-on:click="playVedio(videoList,container)">播放
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="temp-app" class="temp-app template" v-bind:style="showObj.styleObj" v-show="showObj.tempShow">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xs-12 col-md-4">
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-info ">
+                        {{exeSort}}
+                    </a>
+
+                    <div class="media" v-for="app in gridExe">
+                        <div class="media-left">
+                            <p>
+                                <img class="media-object" v-bind:src="location+app.app_img" alt="...">
+                                <br/>
+                                <button class="btn btn-sm btn-success btn-group-justified"
+                                        v-on:click="getFiles(app.app_name)">下载
+                                </button>
+                            </p>
+                        </div>
+                        <div class="media-body">
+                            <h4 class="media-heading ">{{app.app_name}}
+                            </h4>
+
+                            <p class="well">&nbsp;&nbsp;&nbsp;&nbsp;{{app.app_intro}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-4">
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-success ">
+                        {{apkSort}}
+                    </a>
+
+                    <div class="media" v-for="app in gridApk">
+                        <div class="media-left">
+                            <p>
+                                <img class="media-object" v-bind:src="location+app.app_img" alt="...">
+                                <br/>
+                                <button class="btn btn-sm btn-success btn-group-justified"
+                                        v-on:click="getFiles(app.app_name)">下载
+                                </button>
+                            </p>
+                        </div>
+                        <div class="media-body">
+                            <h4 class="media-heading ">{{app.app_name}}
+                            </h4>
+
+                            <p class="well">&nbsp;&nbsp;&nbsp;&nbsp;{{app.app_intro}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-4">
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-danger ">
+                        {{otherSort}}
+                    </a>
+
+                    <div class="media" v-for="app in gridOther">
+                        <div class="media-left">
+                            <p>
+                                <img class="media-object" v-bind:src="location+app.app_img" alt="...">
+                                <br/>
+                                <button class="btn btn-sm btn-success btn-group-justified"
+                                        v-on:click="getFiles(app.app_name)">下载
+                                </button>
+                            </p>
+                        </div>
+                        <div class="media-body">
+                            <h4 class="media-heading ">{{app.app_name}}
+                            </h4>
+
+                            <p class="well">&nbsp;&nbsp;&nbsp;&nbsp;{{app.app_intro}}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="temp-connect" class="temp-connect template" v-bind:style="showObj.styleObj" v-show="showObj.tempShow">
+    <div class="container">
+        <div class="jumbotron">
+            <h1>在线网络资源分享平台</h1>
+
+            <p>这是一个基于慕课平台在线视频播放网站模拟的一个在线资源分享的平台，平台的目的是免费把更多的资源分享给更多的用户，提供给用户更多的便利</p>
+            <ul class="list-group">
+                <li class="list-group-item list-group-item-danger "><h4>声明:</h4></li>
+                <li class="list-group-item list-group-item-success "><h4>本网站可以上传任何类型的文件，上传文件需要管理员审核之后才能发布在网络上</h4></li>
+                <li class="list-group-item list-group-item-success "><h4>
+                    任何单位或个人认为平台网页内容（包括但不限于平台会员发布的商品信息）可能涉嫌侵犯其合法权益，应该及时向易媒提出书面权利通知，并提供身份证明、权属证明、具体链接（URL）及详细侵权情况证明。平台在收到上述法律文件后，将会依法尽快移除相关涉嫌侵权的内容</h4>
+                <li class="list-group-item list-group-item-success "><h4>网站备案号：京ICP备17023506 &nbsp;Copyright ©
+                    2017-2018</h4>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+<div id="temp-play" class="temp-play template" v-bind:style="showObj.styleObj" v-show="showObj.tempShow">
+    <div class="panel panel-default">
+
+        <div class="panel-heading">
+            <div class=" text-right">
+
+
+                <a href="#" class="btn btn-danger btn-sm" v-on:click="changeTemp(temp_vedio)">关闭</a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <button class="btn btn-info">
+                    <small>片名：</small>
+                    {{videoData.video_name}}
+                </button>
+                <br/><br/><br/>
+
+                <div class="well text-left col-xs-12">
+                    {{videoData.video_intro}}
+                </div>
+            </div>
+            <div class="row player">
+                <div class="col-xs-12 ">
+                    <video id="video-js" class="video-js vjs-default-skin" controls preload="auto"
+                           v-bind:poster="poster">
+                        <source id="source" src="" type='video/mp4'/>
+                    </video>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-right">
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModalYunSdk">
+                跟帖
+            </button>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="answerModal" v-show="answerShow">
+        <div class="panel panel-default">
+            <div class="panel-heading panel-success">观看视频时间长了吗？来做做习题吧</div>
+            <div class="panel-body">点击下方按钮进行答题</div>
+            <div class="panel-footer text-right ">
+                <button type="button" class="btn btn-danger" v-on:click="closeAnswer()">下次</button>
+                &nbsp;&nbsp;&nbsp;
+                <button type="button" class="btn btn-info answerBtn" v-on:click="closeAnswer()" data-toggle="modal"
+                        data-target="#exampleModal" data-whatever="@mdo">答题
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">题目：
+                        <button class="btn btn-danger btn-sm">{{question.name}}</button>
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">{{question.qs}}</label>
+                            <input class="form-control" id="message-text" v-model="answerList">
+                        </div>
+                    </form>
+                    <div class="well" v-show="homeFromPhp.homeReplyFlg">{{homeFromPhp.homeReply}}</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary" v-on:click.once="sendHomeWork" v-show="hasAnswered">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="temp-upload" class="temp-upload template" v-bind:style="showObj.styleObj" v-show="showObj.tempShow">
+    <div class="container">
+        <div>
+            <!-- 上传公告-->
+            <div class=" alert alert-danger in fade">
+                <h3>
+                    <button type="button" class="close btn-lg" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true"><span class=" glyphicon glyphicon-remove"></span></span>
+                    </button>
+                </h3>
+                <br/><br/>
+                <h4>
+                    提示：上传文件时需要提前为上传的文件进行分类,这样便于后天管理员对上传的内容进行分类，点击下方的标签即可对你想要上传的文件进行分类，管理员在后台对上传文件进行审核后就可以对文件上线，提供给用户下载和观看，并且奖励提供给用户一些积分用于后期的礼品兑换。</h4>
+
+            </div>
+            <!-- 分类板-->
+            <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true" v-if="true">
+                <div class="panel panel-success">
+                    <div class="panel-heading" role="tab" id="headingOne">
+                        <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne"
+                           aria-expanded="true" aria-controls="collapseOne">
+                            <h4 class="panel-title">
+                                视频类
+                            </h4>
+                        </a>
+                    </div>
+                    <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel"
+                         aria-labelledby="headingOne">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 ">
+                                    <button type="button" class="btn btn-lg btn-primary" disabled="disabled">专业分类
+                                    </button>
+                                </div>
+                            </div>
+                            <br/>
+
+                            <div class="row">
+                                <div class="col-xs-12 col-md-2" v-for="btnSort in btnProfessional">
+                                    <button type="button" class="btn btn-primary btn-lg"
+                                            v-bind:class="btnSort.classObj" data-toggle="modal"
+                                            data-target=".bs-example-modal-sm">
+                                        <input class="sortInput" type="radio" v-bind:value="btnSort.type"
+                                               v-model="upSort">{{btnSort.type}}
+                                    </button>
+                                </div>
+
+                            </div>
+                            <br/><br/><br/>
+
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <button type="button" class="btn btn-lg btn-primary" disabled="disabled">业余爱好：
+                                    </button>
+                                </div>
+                            </div>
+                            <br/>
+
+                            <div class="row">
+                                <div class="col-xs-12 col-md-2" v-for="btnSort in btnUnProfessional">
+                                    <button type="button" class="btn btn-primary btn-lg"
+                                            v-bind:class="btnSort.classObj" data-toggle="modal"
+                                            data-target=".bs-example-modal-sm">
+                                        <input class="sortInput" type="radio" v-bind:value="btnSort.type"
+                                               v-model="upSort">{{btnSort.type}}
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="panel panel-success">
+                    <div class="panel-heading" role="tab" id="headingTwo">
+
+                        <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion"
+                           href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            <h4 class="panel-title">
+                                文件类
+                            </h4>
+                        </a>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-xs-12 ">
+                                    <button type="button" class="btn btn-lg btn-primary" disabled="disabled">应用软件：
+                                    </button>
+
+                                </div>
+                                <br/><br/><br/>
+
+                            </div>
+                            <div class="row">
+                                <div class="col-xs-12 col-md-2" v-for="btnSort in btnFiles">
+                                    <button type="button" class="btn btn-primary btn-lg" v-bind:class="btnSort.classObj"
+                                            data-toggle="modal" data-target=".bs-example-modal-sm"
+                                            ><input class="sortInput" type="radio"
+                                                    v-bind:value="btnSort.type" v-model="upSort">{{btnSort.type}}
+                                    </button>
+
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <!--模态框-->
+            <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="well"><span class="text-info">您选择的文件类型为：</span>
+                            <button class="btn btn-danger">{{upSort}}</button>
+                        </div>
+                        <div class="alert alert-warning alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-addon" id="sizing-addon1">为上传内容添加说明</span>
+                                <input type="text" class="form-control" v-model="upMessage" placeholder="请在此输入说明"
+                                       aria-describedby="sizing-addon1">
+                            </div>
+                        </div>
+                        <!--上传文件的组件-->
+                        <div class="text-center" id="pickfiles-container" v-if="true">
+                            <a class="btn btn-success btn-lg btn-block " id="pickfiles"
+                               v-on:mouseenter.once="getToken()">上传文件</a>
+                            <br/><br/><br/>
+
+                            <div class="up_files">
+                                <div class="row" v-for="upFile in upProgressFiles">
+                                    <div class="col-xs-3 ">{{upFile.name}}</div>
+                                    <div class="col-xs-3">{{upFile.size}}</div>
+                                    <div class="col-xs-5 ">
+                                        <div class="progress">
+                                            <div id="progressBar"
+                                                 class="progress-bar progress-bar-striped progress-bar-success active"
+                                                 role="progressbar"
+                                                 aria-valuenow="" v-bind:style="{width:upFile.percent+'%'}"
+                                                 :aria-valuemin="0"
+                                                 aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-1 upload_progress">{{upFile.percent}}%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!--模版文件-->
+
+<div class="modal fade" id="myModalYunSdk" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">讨论区</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--*********************-->
+<!--底部导航-->
+
+<script src="https://img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
+<script>
+    var cloudTieConfig = {
+        url: document.location.href,
+        sourceId: '',
+        productKey: "42fa3ffcf06d4d5fb60e85afd98087c2",
+        target: "cloud-tie-wrapper"
+    };
+</script>
+<!--**************************-->
+<script src="lib/jquery.min.js"></script>
+<script src="lib/bootstrap.min.js"></script>
+<script src="lib/plupload.full.min.js"></script>
+<script src="lib/qiniu.js"></script>
+
+<script>
+
+</script>
+<!--<script src="./js/temp.js"></script>-->
+<script src="./js/my_router.js"></script>
+<!--<script src="./js/jq_router.js"></script>-->
+</body>
+</html>

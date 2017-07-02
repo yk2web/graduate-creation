@@ -1,0 +1,67 @@
+<div id="temp-play" class="temp-play">
+    <div class="panel panel-default">
+        <div class="well text-right"><a href="javascript:$('#temp-container').load(tempRouter.movie);;"
+                                        class="btn btn-danger btn-sm">关闭</a>
+        </div>
+        <div class="panel-heading">
+            <div class="page-header">
+                <h4>片名：
+                    <small>Subtext for header</small>
+                </h4>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="row player">
+                <div class="col-xs-12 text-center">
+                    <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" width="640" height="264"
+                           poster="">
+                        <source id="source" src="http://onx4pbf7p.bkt.clouddn.com/2509" type='video/mp4' />
+                    </video>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="row">
+
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+                    <div>网易云跟帖</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var vedioSource = document.getElementById('source');
+    console.log(vedioSource);
+
+    function playVideo(url) {
+        var myPlayer = videojs('my-video', {}, function () {
+            console.log(myPlayer);
+            videojs("my-video").ready(function () {
+                var myPlayer = this;
+                console.log(myPlayer)
+//            myPlayer.progress(true);
+                myPlayer.src(url);
+                myPlayer.load(url);  //使video重新加载
+                myPlayer.play();
+            });
+        });
+
+    }
+//    var vedioTotal = document.querySelector('#vedio-btn-all');
+//    vedioTotal.addEventListener('click', function (e) {
+//        if (e.target.getAttribute('class') == 'vedio-btn')
+//            var that = e.target;
+//        console.log('123');
+//        var vedioId = that.getAttribute('data-id');
+//        playVideo(vedioId);
+//    })
+</script>

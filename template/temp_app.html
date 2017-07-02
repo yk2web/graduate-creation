@@ -1,0 +1,15 @@
+<div id="temp-app" class="temp-app">
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-md-4" v-for="sort in appSorts">
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-success ">
+                        {{sort.name}}
+                    </a>
+                    <a href="#" class="list-group-item" v-for="app in sort.list">{{app.name}} <span
+                            class="badge"><span class="glyphicon glyphicon-save"></span></span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
